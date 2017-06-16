@@ -16,14 +16,15 @@ class DetailViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var dueDatePicker: UIDatePicker!
 
-    var todo: ToDo!
+    var todoId: Int!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         titleTextField.delegate = self
         descriptionTextField.delegate = self
 
-        if let todo = self.todo {
+        let realm = try! Realm()
+        if let id = todoId, let todo = realm.objects(ToDo.self).filter("id == \(id)").first {
             titleTextField.text = todo.title
             descriptionTextField.text = todo.detailDescription
             dueDatePicker.date = todo.dueDate as Date
@@ -32,20 +33,41 @@ class DetailViewController: UIViewController, UITextFieldDelegate {
 
     @IBAction func save() {
 
-        if let title = titleTextField.text, let detailDescription = descriptionTextField.text {
+        let realm = try! Realm()
+        if let id = todoId, let todo = realm.objects(ToDo.self).filter("id == \(id)").first{
 
-            let todo = ToDo()
-            todo.id = ToDo.lastId()
-            todo.title = title
-            todo.detailDescription = detailDescription
+            if let title = titleTextField.text, let detailDescription = descriptionTextField.text {
 
-            let realm = try! Realm()
-            try! realm.write {
+                let realm = try! Realm()
+                try! realm.write {
 
-                realm.add(todo)
+                    todo.title = title
+                    todo.detailDescription = detailDescription
+                    todo.dueDate = dueDatePicker.date as NSDate
+                    realm.add(todo, update: true)
+                }
+
+                print(Realm.Configuration.defaultConfiguration.fileURL?.absoluteString ?? "")
             }
+        }
+        else {
 
-            print(Realm.Configuration.defaultConfiguration.fileURL?.absoluteString ?? "")
+            if let title = titleTextField.text, let detailDescription = descriptionTextField.text {
+
+                let todo = ToDo()
+                todo.id = ToDo.lastId()
+                todo.title = title
+                todo.detailDescription = detailDescription
+                todo.dueDate = dueDatePicker.date as NSDate
+
+                let realm = try! Realm()
+                try! realm.write {
+
+                    realm.add(todo)
+                }
+
+                print(Realm.Configuration.defaultConfiguration.fileURL?.absoluteString ?? "")
+            }
         }
     }
 

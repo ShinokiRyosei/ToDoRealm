@@ -13,7 +13,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
     @IBOutlet weak var tableView: UITableView!
 
-    var todoes: Results<ToDo> = {
+    var todoes = { () -> Results<ToDo> in 
 
         let realm = try! Realm()
         return realm.objects(ToDo.self)
@@ -30,6 +30,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         super.viewWillAppear(animated)
 
         tableView.reloadData()
+
+        var sum: Int = 0
+        for obj in todoes {
+
+            sum = sum + obj.id
+        }
     }
 
     @IBAction func add() {
@@ -65,7 +71,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
 
             let controller = segue.destination as! DetailViewController
             if let todo = sender as? ToDo {
-                controller.todo = todo
+                controller.todoId = todo.id
             }
         }
     }

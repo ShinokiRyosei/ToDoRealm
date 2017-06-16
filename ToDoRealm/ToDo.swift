@@ -33,4 +33,19 @@ class ToDo: Object {
             return 1
         }
     }
+
+    func dayBegin() -> NSDate {
+
+        let date = Date()
+        let calendar = Calendar.current
+        let component = calendar.dateComponents([.year, .month, .day], from: date)
+        let year = component.year!
+        let month = String(format: "%02d", component.month!)
+        let day = component.day!
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy/MM/dd hh:mm:ss"
+        formatter.locale = Locale(identifier: "ja_JP")
+        return formatter.date(from: "\(year)/\(month)/\(day) 00:00:00")! as NSDate
+    }
 }
